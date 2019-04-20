@@ -1,9 +1,9 @@
-# Wordpress WebApp Boilerplate
+# Wordpress WebApp Boilerplate (Experimental)
 
-Experimental - Laravel like Wordpress webapp boilerplate
+Laravel like Wordpress WebApp boilerplate
 
-Designed to allow for you to build out a single app within wordpress.
+Designed to allow for you to build out a single app within Wordpress.
 
-\*Whilst this uses Wordpress's plugin architecture it is not meant to be used to create general puropse plugins.
+_Whilst this uses Wordpress's plugin architecture it is not meant to be used to create general puropse plugins._
 
-Inspired by this blog post (https://roots.io/routing-wp-requests/) and a desire to find a simple solution that can be easily enhanced.
+Inspired Laravel and routing technique by this blog post (https://roots.io/routing-wp-requests/) and motivated by a desire to find a simple solution that can be easily enhanced.
