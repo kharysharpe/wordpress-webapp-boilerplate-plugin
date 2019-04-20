@@ -1,4 +1,0 @@
-<h1>Test Page</h1>
-
-<p><strong>Parameter:</strong></p>
-<p>ID: <?php echo static::e($id); ?></p>
