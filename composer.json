@@ -10,7 +10,8 @@
   "require": {
     "samueltissot/wp_route": "^0.3.0",
     "eftec/bladeone": "^3.22",
-    "nikic/fast-route": "^1.3"
+    "nikic/fast-route": "^1.3",
+    "illuminate/database": "^5.8"
   },
   "autoload": {
     "classmap": [
