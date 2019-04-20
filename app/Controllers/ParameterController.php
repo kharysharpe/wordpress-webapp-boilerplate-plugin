@@ -2,11 +2,11 @@
 
 namespace App\Controllers;
 
-// an invocable class
-class TestController
+// a popo class
+class ParameterController
 {
     public function __invoke($parameters)
     {
-        echo view('test', $parameters);
+        return view('parameter', $parameters);
     }
 }

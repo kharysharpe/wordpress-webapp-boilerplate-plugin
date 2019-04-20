@@ -1,47 +1,36 @@
-
 <?php
 
 global $wp;
 
 $handler = $wp->query_vars['custom_route']['handler'];
-$parameters = $wp->query_vars['custom_route']['vars'];
+$parameters = $wp->query_vars['custom_route']['parameters'];
 
-execute_handler($handler, $parameters);
+echo execute_handler($handler, $parameters);
 
 function execute_handler($handler, $parameters)
 {
-    if (is_callable($handler)) {
-        $handler($parameters);
-        return;
+    if (is_array($handler)) {
+        $request = $handler;
+
+        if (isset($request['uses'])) {
+            $handler = $request['uses'];
+        } else {
+            $handler = 'Missing uses identifier in route handler.';
+        }
     }
 
-    if (method_exists($handler, '__invoke')) {
-        (new $handler)->__invoke($parameters);
-        return;
+    if (is_callable($handler)) {
+        return $handler($parameters);
     }
 
     if (strpos($handler, '@') !== false) {
         list($class, $method) = explode('@', $handler);
+        return (new $class)->$method($parameters);
+    }
 
-        (new $class)->$method($parameters);
-        return;
+    if (method_exists($handler, '__invoke')) {
+        return (new $handler)->__invoke($parameters);
     }
 
     throw new UnexpectedValueException("Invalid route action: [{$handler}].");
-}
-
-
-class get_all_test_handler
-{
-    public function test($p)
-    {
-        echo 'Test';
-        print_r($p);
-    }
-
-    public function test2($p)
-    {
-        echo 'Test2';
-        echo view('test', $p);
-    }
 }

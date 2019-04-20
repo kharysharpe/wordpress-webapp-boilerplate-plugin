@@ -17,7 +17,7 @@ add_action('do_parse_request', function ($do_parse, $wp) {
     }
 
     $current_url = '/' . $current_url;
-    
+
     $httpMethod = $_SERVER['REQUEST_METHOD'];
 
 
@@ -34,7 +34,7 @@ add_action('do_parse_request', function ($do_parse, $wp) {
 
             $wp->query_vars['custom_route'] = [
                 'handler' => $routeInfo[1],
-                'vars' => $routeInfo[2],
+                'parameters' => (array)$routeInfo[2],
             ];
 
             // $handler = $routeInfo[1];

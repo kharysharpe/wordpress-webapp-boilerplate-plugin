@@ -7,6 +7,6 @@ class PageController
 {
     public function index($parameters)
     {
-        echo view('page', $parameters);
+        return view('page', $parameters);
     }
 }

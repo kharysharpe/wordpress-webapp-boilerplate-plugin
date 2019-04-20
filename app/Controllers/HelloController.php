@@ -7,6 +7,6 @@ class HelloController
 {
     public function index($parameters)
     {
-        echo view('hello');
+        return view('hello');
     }
 }
