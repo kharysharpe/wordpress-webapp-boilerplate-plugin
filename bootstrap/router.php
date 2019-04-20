@@ -1,80 +1,67 @@
 <?php
-/*
- * Plugin Name: Routing WP
- * Author: Giuseppe Mazzapica
- * Description: A routing system for WordPress
- */
-namespace RoutingWP;
 
-class Router
-{
-    public static $routes = [];
+add_action('do_parse_request', function ($do_parse, $wp) {
 
-    private function get_current_url()
-    {
-        $current_url = trim(esc_url_raw(add_query_arg([])), '/');
-        $home_path = trim(parse_url(home_url(), PHP_URL_PATH), '/');
-        if ($home_path && strpos($current_url, $home_path) === 0) {
-            $current_url = trim(substr($current_url, strlen($home_path)), '/');
-        }
-        return $current_url;
+    // Get current URL minus home path (subfolder installation)
+    $current_url = trim(esc_url_raw(add_query_arg([])), '/');
+
+    $home_path = trim(parse_url(home_url(), PHP_URL_PATH), '/');
+
+    if ($home_path && strpos($current_url, $home_path) === 0) {
+        $current_url = trim(substr($current_url, strlen($home_path)), '/');
     }
 
-    public static function add($method, $path, $callback, $options)
-    {
-    }
+    $current_url = '/' . $current_url;
 
-    public static function get($path, $callback, $options)
-    {
-        self::add('GET', $path, $callback, $options);
-    }
-
-    public static function post($path, $callback, $options)
-    {
-        self::add('POST', $path, $callback, $options);
-    }
-
-    public static function match()
-    {
-        $allowed = !is_admin() || (defined('DOING_AJAX') && DOING_AJAX);
-    }
-}
+    $httpMethod = $_SERVER['REQUEST_METHOD'];
 
 
+    //Detect Route
+    $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $route) {
+        include(WEBAPP_ROOT . '/routes/pages.php');
+    });
 
-$allowed and add_action('do_parse_request', function ($do_parse, $wp) {
-    $routes = [];
-    $current_url = get_current_url();
-    $routes = apply_filters('routing_add_routes', $routes, $current_url);
-    if (empty($routes) || !is_array($routes)) {
-        return $do_parse;
+    $routeInfo = $dispatcher->dispatch($httpMethod, $current_url);
+
+    switch ($routeInfo[0]) {
+
+        case FastRoute\Dispatcher::FOUND:
+
+            $wp->query_vars['custom_route'] = [
+                'handler' => $routeInfo[1],
+                'parameters' => (array)$routeInfo[2],
+            ];
+
+            // $handler = $routeInfo[1];
+            // $vars = $routeInfo[2];
+            // ... call $handler with $vars
+
+            do_action('custom_routing_matched', $routeInfo);
+
+            return false;
+
+        case FastRoute\Dispatcher::NOT_FOUND:
+            // ... 404 Not Found
+            break;
+
+        case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            $allowedMethods = $routeInfo[1];
+            // ... 405 Method Not Allowed
+            break;
     }
-    $urlParts = explode('?', $current_url, 2);
-    $urlPath = trim($urlParts[0], '/');
-    $urlVars = [];
-    if (isset($urlParts[1])) {
-        parse_str($urlParts[1], $urlVars);
-    }
-    $query_vars = null;
-    foreach ($routes as $pattern => $callback) {
-        if (preg_match('~' . trim($pattern, '/') . '~', $urlPath, $matches)) {
-            $routeVars = $callback($matches);
-            if (is_array($routeVars)) {
-                $query_vars = array_merge($routeVars, $urlVars);
-                break;
-            }
-        }
-    }
-    if (is_array($query_vars)) {
-        $wp->query_vars = $query_vars;
-        do_action('routing_matched_vars', $query_vars);
-        return false;
-    }
+
     return $do_parse;
 }, 30, 2);
 
-$allowed and add_action('routing_matched_vars', function () {
+add_action('custom_routing_matched', function ($route) {
     remove_action('template_redirect', 'redirect_canonical');
+    add_filter('template_include', 'custom_view_injection', 99);
+
+// add_action('template_include', )
 }, 30);
 
-unset($allowed);
+
+function custom_view_injection($template)
+{
+    return dirname(__FILE__) . '/view.php';
+}
