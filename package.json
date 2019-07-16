@@ -24,6 +24,6 @@
   "homepage": "https://github.com/kharysharpe/wordpress-webapp-boilerplate-plugin#readme",
   "devDependencies": {
     "cross-env": "^5.2.0",
-    "laravel-mix": "^4.0.15"
+    "laravel-mix": "^4.1.2"
   }
 }
